@@ -1,33 +1,14 @@
 // src/lib/drive.ts
 import { google, drive_v3 } from "googleapis";
 import https from "node:https";
-import dns from "node:dns";
-import type { LookupFunction } from "node:net";
 
-/** IPv4-preferred DNS resolution (matches net.LookupFunction signature) */
-const lookupV4: LookupFunction = (
-  hostname,
-  options,
-  callback?
-): void => {
-  // Support both (host, cb) and (host, options, cb)
-  const cb =
-    typeof options === "function"
-      ? options
-      : (callback as (err: NodeJS.ErrnoException | null, address: string, family: number) => void);
-
-  // Force IPv4; `all: false` => single-address callback shape
-  dns.lookup(hostname, { family: 4, all: false }, cb);
-};
-
-/** Shared HTTPS agent (keep-alive + IPv4 via custom lookup) */
+/** Shared HTTPS agent (keep-alive; no custom lookup) */
 const httpsAgent = new https.Agent({
   keepAlive: true,
   maxSockets: 20,
-  lookup: lookupV4,
 });
 
-/** Apply agent + timeout to all googleapis requests */
+/** Apply agent + timeout to all googleapis requests (Gaxios options) */
 google.options({ agent: httpsAgent, timeout: 30_000 });
 
 /**
