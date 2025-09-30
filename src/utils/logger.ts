@@ -100,9 +100,13 @@ export const logger = {
   warn:  (msg: string, meta?: unknown) => print("warn", msg, meta),
   error: (msg: string, meta?: unknown) => print("error", msg, meta),
   child: (ctx: Record<string, unknown>) => ({
-    debug: (msg: string, meta?: unknown) => print("debug", msg, { ...ctx, ...meta }),
-    info:  (msg: string, meta?: unknown) => print("info", msg, { ...ctx, ...meta }),
-    warn:  (msg: string, meta?: unknown) => print("warn", msg, { ...ctx, ...meta }),
-    error: (msg: string, meta?: unknown) => print("error", msg, { ...ctx, ...meta }),
+    debug: (msg: string, meta?: unknown) =>
+      print("debug", msg, { ...ctx, ...(typeof meta === "object" && meta !== null ? meta : {}) }),
+    info: (msg: string, meta?: unknown) =>
+      print("info", msg, { ...ctx, ...(typeof meta === "object" && meta !== null ? meta : {}) }),
+    warn: (msg: string, meta?: unknown) =>
+      print("warn", msg, { ...ctx, ...(typeof meta === "object" && meta !== null ? meta : {}) }),
+    error: (msg: string, meta?: unknown) =>
+      print("error", msg, { ...ctx, ...(typeof meta === "object" && meta !== null ? meta : {}) }),
   }),
 };
