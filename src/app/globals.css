@@ -1,26 +1,154 @@
-@import "tailwindcss";
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* ========= THEME TOKENS =========
+   We define both hex fallbacks and OKLCH variables.
+   Use the utility aliases below (bg-background, text-foreground, etc.)
+   or Tailwind classes that reference these vars in component styles.
+*/
+
+/* Light theme */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base surfaces & text */
+  --background:  #0b1020;            /* fallback */
+  --background-oklch: 0.17 0.03 270; /* deep blue slate */
+  --foreground:  #f8fafc;
+  --foreground-oklch: 0.98 0.01 260;
+
+  --card:       #101633;
+  --card-oklch: 0.21 0.04 270;
+  --card-foreground:  #e5e7eb;
+  --card-foreground-oklch: 0.93 0.02 260;
+
+  --border:     #2a3657;
+  --border-oklch: 0.38 0.04 268;
+
+  --muted-foreground:  #94a3b8;
+  --muted-foreground-oklch: 0.78 0.04 250;
+
+  /* Brand & accents */
+  --primary:  #2563eb;              /* Indigo-600 */
+  --primary-oklch: 0.61 0.16 262;
+  --primary-foreground:  #ffffff;
+  --primary-foreground-oklch: 0.99 0 0;
+
+  --secondary: #0ea5e9;             /* Sky-500 */
+  --secondary-oklch: 0.74 0.15 229;
+  --secondary-foreground: #0b1020;
+  --secondary-foreground-oklch: 0.17 0.03 270;
+
+  --accent:    #a855f7;             /* Purple-500 */
+  --accent-oklch: 0.67 0.19 306;
+  --accent-foreground:  #0b1020;
+  --accent-foreground-oklch: 0.17 0.03 270;
+
+  /* Status */
+  --success:   #16a34a;             /* Green-600 */
+  --success-oklch: 0.64 0.15 152;
+  --warning:   #f59e0b;             /* Amber-500 */
+  --warning-oklch: 0.78 0.19 85;
+  --destructive: #ef4444;           /* Red-500 */
+  --destructive-oklch: 0.65 0.21 29;
+
+  /* Rings/inputs */
+  --input: #1f2947;
+  --input-oklch: 0.3 0.04 268;
+  --ring:  #3b82f6;
+  --ring-oklch: 0.7 0.14 250;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark mode flips contrast slightly brighter on surfaces */
+.dark {
+  --background:  #0a0f1f;
+  --background-oklch: 0.15 0.03 270;
+  --foreground:  #e5e7eb;
+  --foreground-oklch: 0.93 0.02 260;
+
+  --card:       #0f152d;
+  --card-oklch: 0.19 0.04 270;
+  --card-foreground:  #e2e8f0;
+  --card-foreground-oklch: 0.92 0.02 260;
+
+  --border:     #223054;
+  --border-oklch: 0.35 0.04 268;
+
+  --muted-foreground:  #a8b1c7;
+  --muted-foreground-oklch: 0.82 0.04 250;
+
+  /* keep brand vivid in dark */
+  --primary:  #3b82f6;
+  --primary-oklch: 0.7 0.14 250;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ===== Base ===== */
+html, body { height: 100%; }
+* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 body {
-  background: var(--background);
+  /* Hex fallback first */
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* OKLCH on capable browsers */
+  background-color: oklch(var(--background-oklch));
+  color: oklch(var(--foreground-oklch));
+}
+
+/* ===== Utility aliases (with fallbacks) ===== */
+.bg-background { background-color: var(--background); background-color: oklch(var(--background-oklch)); }
+.text-foreground { color: var(--foreground); color: oklch(var(--foreground-oklch)); }
+
+.bg-card { background-color: var(--card); background-color: oklch(var(--card-oklch)); }
+.text-card-foreground { color: var(--card-foreground); color: oklch(var(--card-foreground-oklch)); }
+
+.text-muted-foreground { color: var(--muted-foreground); color: oklch(var(--muted-foreground-oklch)); }
+.border-border { border-color: var(--border); border-color: oklch(var(--border-oklch)); }
+
+.bg-primary { background-color: var(--primary); background-color: oklch(var(--primary-oklch)); }
+.text-primary-foreground { color: var(--primary-foreground); color: oklch(var(--primary-foreground-oklch)); }
+.bg-secondary { background-color: var(--secondary); background-color: oklch(var(--secondary-oklch)); }
+.text-secondary-foreground { color: var(--secondary-foreground); color: oklch(var(--secondary-foreground-oklch)); }
+.bg-accent { background-color: var(--accent); background-color: oklch(var(--accent-oklch)); }
+.text-accent-foreground { color: var(--accent-foreground); color: oklch(var(--accent-foreground-oklch)); }
+
+.text-success { color: var(--success); color: oklch(var(--success-oklch)); }
+.text-warning { color: var(--warning); color: oklch(var(--warning-oklch)); }
+.text-destructive { color: var(--destructive); color: oklch(var(--destructive-oklch)); }
+
+.ring-brand {
+  --tw-ring-color: var(--ring);
+  --tw-ring-color: oklch(var(--ring-oklch));
+}
+
+/* Tailwind base overlay */
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
+
+/* ===== Optional helper comps (works with shadcn/ui) ===== */
+.btn-primary {
+  @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 font-medium shadow-sm transition;
+  background-color: var(--primary); background-color: oklch(var(--primary-oklch));
+  color: var(--primary-foreground); color: oklch(var(--primary-foreground-oklch));
+}
+.btn-primary:hover { filter: brightness(1.05); }
+.btn-secondary {
+  @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 font-medium shadow-sm transition;
+  background-color: var(--secondary); background-color: oklch(var(--secondary-oklch));
+  color: var(--secondary-foreground); color: oklch(var(--secondary-foreground-oklch));
+}
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  background-color: var(--card); background-color: oklch(var(--card-oklch));
+  color: var(--muted-foreground); color: oklch(var(--muted-foreground-oklch));
+  border: 1px solid; border-color: var(--border); border-color: oklch(var(--border-oklch));
+}
+
+/* ===== CSS load test strip ===== */
+#css-test-strip {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #ef4444, #f59e0b, #22c55e, #3b82f6, #a855f7);
+  z-index: 9999; pointer-events: none;
 }
