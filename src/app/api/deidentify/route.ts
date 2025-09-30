@@ -3,7 +3,7 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { Readable } from "node:stream";
-import { DlpServiceClient } from "@google-cloud/dlp";
+import { DlpServiceClient, protos } from "@google-cloud/dlp";
 import { verifyIdToken } from "@/lib/firebaseAdmin";
 import { makeUserDrive } from "@/lib/drive";
 import { buildDeidentifyConfig, INSPECT_CONFIG } from "@/lib/dlpPolicy";
@@ -91,8 +91,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const outBuffers: Buffer[] = [];
     const start = Date.now();
 
-    type DeidReturn = Awaited<ReturnType<DlpServiceClient["deidentifyContent"]>>;
-
     await timeit(
       "dlp_deidentify",
       async () => {
@@ -100,15 +98,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           if (!piece) continue;
 
           // Use UTF-8 string channel for plain text
-          const resp: DeidReturn = await dlp.deidentifyContent({
+          const tuple = await dlp.deidentifyContent({
             parent,
             inspectConfig: INSPECT_CONFIG,
             deidentifyConfig,
-            item: { value: piece }, // <— string input preferred for text
+            item: { value: piece },
           });
 
-          const res = resp[0];
-          const value: string = (res?.item?.value ?? piece); // defensive fallback
+          // Explicitly cast the first tuple item to the SDK type (no `any`)
+          const res = tuple[0] as protos.google.privacy.dlp.v2.IDeidentifyContentResponse;
+          const value: string = res?.item?.value ?? piece; // defensive fallback
           outBuffers.push(Buffer.from(value, "utf8"));
         }
       },
@@ -142,7 +141,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const payload: DeidentifyResponse = {
       sanitizedFileId: String(upload.data.id),
       name: upload.data.name ?? undefined,
-      download: upload.data.webContentLink ?? undefined, // <— UI will show the button again
+      download: upload.data.webContentLink ?? undefined, // UI uses this to show the download button
     };
 
     log.info("deid_ok", { fileId, outId: upload.data.id, ms: latencyMs });
